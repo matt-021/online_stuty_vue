@@ -42,7 +42,7 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/edu/teacher/list',
     name: 'teacher',
-    meta: { title: '讲师管理', icon: 'eye' },
+    meta: { title: '讲师管理', icon: 'teacher' },
     children: [
       {
         path: 'list',

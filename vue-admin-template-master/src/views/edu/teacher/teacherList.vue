@@ -56,11 +56,13 @@
       <el-table-column prop="name" label="名称" width="80" />
 
       <el-table-column label="头衔" width="80">
+          <!-- <template slot-scope="scope">
+          scope.row.属性  固定写法 获取当行的属性值
+        </template> -->
         <template slot-scope="scope">
           {{ scope.row.level===1?'高级讲师':'首席讲师' }}
         </template>
       </el-table-column>
-
       <el-table-column prop="intro" label="资历" />
 
       <el-table-column prop="gmtCreate" label="添加时间" width="160"/>
