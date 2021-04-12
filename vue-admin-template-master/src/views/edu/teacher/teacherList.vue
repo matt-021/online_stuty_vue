@@ -3,11 +3,11 @@
       <!--查询表单-->
     <el-form :inline="true" class="demo-form-inline">
       <el-form-item>
-        <el-input v-model="searchObj.name" placeholder="讲师名"/>
+        <el-input v-model="teacherQuery.name" placeholder="讲师名"/>
       </el-form-item>
 
       <el-form-item>
-        <el-select v-model="searchObj.level" clearable placeholder="讲师头衔">
+        <el-select v-model="teacherQuery.level" clearable placeholder="讲师头衔">
           <el-option :value="1" label="高级讲师"/>
           <el-option :value="2" label="首席讲师"/>
         </el-select>
@@ -15,7 +15,7 @@
 
       <el-form-item label="添加时间">
         <el-date-picker
-          v-model="searchObj.begin"
+          v-model="teacherQuery.begin"
           type="datetime"
           placeholder="选择开始时间"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -24,7 +24,7 @@
       </el-form-item>
       <el-form-item>
         <el-date-picker
-          v-model="searchObj.end"
+          v-model="teacherQuery.end"
           type="datetime"
           placeholder="选择截止时间"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -34,6 +34,7 @@
 
       <el-button type="primary" icon="el-icon-search" @click="fetchData()">查询</el-button>
       <el-button type="default" @click="resetData()">清空</el-button>
+       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="add()">新增讲师</el-button>
     </el-form>
        <!-- 表格 -->
     <el-table
@@ -71,7 +72,7 @@
 
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
-          <router-link :to="'/edu/teacher/edit/'+scope.row.id">
+          <router-link :to="'/edu/teacher/create/'+scope.row.id">
             <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
           </router-link>
           <el-button type="danger" size="mini" icon="el-icon-delete" @click="removeDataById(scope.row.id)">删除</el-button>
@@ -102,7 +103,7 @@ export default {
         total: 0, // 总记录数
         page: 1, // 页码
         limit: 10, // 每页记录数
-        searchObj: {}// 查询条件
+        teacherQuery: {}// 查询条件
         }
   },
     
@@ -113,12 +114,15 @@ export default {
   },
     
   methods: {
+    //多条件 查询讲师
     fetchData(page = 1) { // 调用api层获取数据库中的数据
-      console.log('加载列表')
+     // console.log('加载列表')
+     
       this.page = page
       this.listLoading = true
-      teacher.getPageList(this.page, this.limit, this.searchObj).then(response => {
+      teacher.getPageList(this.page, this.limit, this.teacherQuery).then(response => {
         // debugger 设置断点调试
+         
         if (response.success === true) {
           this.list = response.data.rows
           this.total = response.data.total
@@ -128,10 +132,55 @@ export default {
         
       })
       
-    }
+    },
+    //清空查询条件的方法
+    resetData() {
+            //表单输入项数据清空
+            this.teacherQuery = {}
+            //查询所有讲师数据
+            this.fetchData()
+        },
+        //新增讲师，
+    add(){
+      //跳转到新增讲师页面
+      this.$router.push({path: "/edu/teacher/create"})
+
+    },
+    
+      //删除讲师
+    removeDataById(id) {
+    // debugger
+    // console.log(memberId)
+    this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(() => {
+        return teacher.removeById(id)
+    }).then(() => {
+        this.fetchData()
+        this.$message({
+            type: 'success',
+            message: '删除成功!'
+        })
+    }).catch((response) => { // 失败
+        if (response === 'cancel') {
+            this.$message({
+                type: 'info',
+                message: '已取消删除'
+            })
+        } else {
+            this.$message({
+                type: 'error',
+                message: '删除失败'
+            })
+        }
+    })
+}
+  
     
     }
-  
+    
   
 }
 </script>
