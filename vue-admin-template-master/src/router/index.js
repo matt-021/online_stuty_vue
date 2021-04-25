@@ -67,26 +67,28 @@ export const constantRouterMap = [
     ]
   },
   {
-    path: '/example',
+    path: '/edu/subject',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    redirect: '/edu/subject/list',
+    name: 'subject',
+    meta: { title: '课程管理', icon: 'example' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        path: 'list',
+        name: 'subjectList',
+        component: () => import('@/views/edu/subject/subjectList'),
+        meta: { title: '课程列表', icon: 'table' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        path: 'add',
+        name: 'subjectAdd',
+        component: () => import('@/views/edu/subject/subjectAdd'),
+        meta: { title: '新增课程', icon: 'tree' },
+        
       }
     ]
   },
+ 
 
   {
     path: '/form',
@@ -164,7 +166,7 @@ export const constantRouterMap = [
     component: Layout,
     children: [
       {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
+        path: 'https://www.baidu.com',
         meta: { title: 'External Link', icon: 'link' }
       }
     ]
