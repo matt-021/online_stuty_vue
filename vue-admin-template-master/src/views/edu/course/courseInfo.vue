@@ -120,7 +120,7 @@ export default {
     },
     created() {
         if (this.$route.params && this.$route.params.id) {
-            this.courseId  = this.$route.params.id
+            this.courseInfo.id  = this.$route.params.id
              // 根据id获取课程基本信息
              this.getInfo()
          }
@@ -132,7 +132,7 @@ export default {
     methods:{
          //根据课程id查询
         getInfo() {
-            course.getCourseInfoId(this.courseId)
+            course.getCourseInfoId(this.courseInfo.id)
                 .then(response => {
                     //在courseInfo课程基本信息，包含 一级分类id 和 二级分类id
                    this.courseInfo = response.data.item
@@ -203,7 +203,8 @@ export default {
                     this.teacherList = response.data.items
                 })
         },
-        saveOrUpdate() {
+         //添加课程
+        addCourse() {
             course.addCourseInfo(this.courseInfo)
                 .then(response => {
                     //提示
@@ -212,9 +213,32 @@ export default {
                         message: '添加课程信息成功!'
                     });
                     //跳转到第二步
-                    this.$router.push({path:'/edu/course/chapter/'+response.data.courseId})
+                    this.$router.push({path:'/course/chapter/'+response.data.courseId})
                 })
+        },
+        //修改课程
+        updateCourse() {
+            course.updateCourseInfo(this.courseInfo)
+                .then(response => {
+                     //提示
+                    this.$message({
+                        type: 'success',
+                        message: '修改课程信息成功!'
+                    });
+                    //跳转到第二步
+                    this.$router.push({path:'/edu/course/chapter/'+this.courseInfo.id})
+                })
+        },
+        saveOrUpdate() {
+           //判断添加还是修改
+           if(!this.courseInfo.id) {
+               //添加
+               this.addCourse()
+           } else {
+               this.updateCourse()
+           }
         }
+        
     }
 }
 </script>
