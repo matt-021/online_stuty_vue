@@ -44,6 +44,21 @@ export default {
             url: '/edu/course/publishCourse/'+id,
             method: 'post'
           })
+    },
+    //课程列表展示
+    pageCourseCondition(current,limit,courseQuery) {
+        return request({
+            url: `/edu/course/pageTeacherCondition/${current}/${limit}`,
+            method: 'post',
+            data: courseQuery
+        })
+    },
+    //删除课程
+    deleteCourse(courseId) {
+        return request({
+            url: '/edu/course/'+courseId,
+            method: 'delete'
+        })
     }
 
 }

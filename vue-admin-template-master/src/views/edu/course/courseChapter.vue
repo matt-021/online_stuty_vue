@@ -36,7 +36,7 @@
 
                 <span class="acts">
                     
-                    <el-button style="" type="text">编辑</el-button>
+                    <el-button style="" type="text" @click="openEditVideo(video.id)">编辑</el-button>
                     <el-button type="text" @click="removeVideo(video.id)">删除</el-button>
                 </span>
                     </p>
@@ -76,13 +76,31 @@
     </el-form-item>
     <el-form-item label="是否免费">
       <el-radio-group v-model="video.free">
-        <el-radio :label="true">免费</el-radio>
+        <el-radio :label="true" >免费</el-radio>
         <el-radio :label="false">默认</el-radio>
       </el-radio-group>
     </el-form-item>
     <el-form-item label="上传视频">
-      <!-- TODO -->
-    </el-form-item>
+    <el-upload
+           :on-success="handleVodUploadSuccess"
+           :on-remove="handleVodRemove"
+           :before-remove="beforeVodRemove"
+           :on-exceed="handleUploadExceed"
+           :file-list="fileList"
+           :action="BASE_API+'/vod/video/uploadAlyiVideo'"
+           :limit="1"
+           class="upload-demo">
+    <el-button size="small" type="primary">上传视频</el-button>
+    <el-tooltip placement="right-end">
+        <div slot="content">最大支持1G，<br>
+            支持3GP、ASF、AVI、DAT、DV、FLV、F4V、<br>
+            GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、<br>
+            MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、<br>
+            SWF、TS、VOB、WMV、WEBM 等视频格式上传</div>
+        <i class="el-icon-question"/>
+    </el-tooltip>
+    </el-upload>
+</el-form-item>
   </el-form>
   <div slot="footer" class="dialog-footer">
     <el-button @click="dialogVideoFormVisible = false">取 消</el-button>
@@ -95,7 +113,7 @@
 <script>
 import chapter from '@/api/edu/chapter'
 import video from '@/api/edu/video'
-
+import vod from '@/api/edu/vod'
 export default {
     data() {
         return {
@@ -110,10 +128,13 @@ export default {
                 title: '',
                 sort: 0,
                 free: 0,
-                videoSourceId: ''
+                videoSourceId: '',
+                videoOriginalName: ''
             },
             dialogChapterFormVisible:false,//章节弹框
-            dialogVideoFormVisible:false //小节弹框
+            dialogVideoFormVisible:false, //小节弹框
+            fileList: [],//上传文件列表
+            BASE_API: process.env.BASE_API, // 接口API地址
             
         }
     },
@@ -126,7 +147,48 @@ export default {
         }
     },
     methods:{
+        //视频删除前确定
+        beforeVodRemove(file,fileList) {
+         return this.$confirm(`确定移除 ${file.name}?`)
+       },
+       //视频删除点击确定调用的方法
+       handleVodRemove() {
+         vod.deleteAliyunvod(this.video.videoSourceId)
+              .then(response => {
+                 this.$message({
+                     type: 'success',
+                     message: '添加视频成功!'
+                   });
+                 //把文件列表清空
+                 this.fileList = []  
+                 //删除视频之后把视频id和视频名称清空
+                 this.video.videoSourceId = ''
+                 this.video.videoOriginalName = ''
+              })
+       },
+         //上传视频成功调用的方法
+        handleVodUploadSuccess(response, file, fileList) {
+            //上传视频id赋值
+            this.video.videoSourceId = response.data.videoId
+            console.log( "上传视频id赋值" + this.video.videoSourceId )
+            console.log( file.name )
+            //上传视频名称赋值
+            this.video.videoOriginalName = file.name
+        },
+        handleUploadExceed() {
+            this.$message.warning('想要重新上传视频，请先删除已上传的视频')
+        },
 //==============================小节操作====================================
+        //编辑将小节信息显示到弹框中
+        openEditVideo(id) {
+          this.dialogVideoFormVisible = true
+          console.log(id)
+          video.getVideo(id)
+               .then(response => {
+                 this.video = response.data.eduVideo
+                 this.fileList = [{'name': this.video.videoOriginalName}]
+               })
+        },
         //删除小节
         removeVideo(id) {
             this.$confirm('此操作将删除小节, 是否继续?', '提示', {
@@ -149,6 +211,9 @@ export default {
         },
         //添加小节弹框的方法
         openVideo(chapterId) {
+             //清空弹框内容
+            this.video={}
+            this.fileList=[]
             //弹框
             this.dialogVideoFormVisible = true
             //设置章节id
@@ -158,8 +223,10 @@ export default {
         addVideo() {
             //设置课程id
             this.video.courseId = this.courseId
+             console.log(this.video)
             video.addVideo(this.video)
                 .then(response => {
+                   
                     //关闭弹框
                     this.dialogVideoFormVisible = false
                     //提示

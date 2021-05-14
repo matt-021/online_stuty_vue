@@ -17,4 +17,11 @@ export default {
             method: 'delete'
           })
     },
+    //根据id查询小节
+    getVideo(id) {
+        return request({
+            url: '/edu/video/getVideoInfo/'+id,
+            method: 'get'
+        })
+    }
 }
