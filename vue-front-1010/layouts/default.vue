@@ -137,7 +137,7 @@ import "~/assets/css/web.css";
 
 
 import cookie from 'js-cookie'
-
+import loginApi from '@/api/login'
 export default {
   data() {
     return {
@@ -154,18 +154,36 @@ export default {
   },
 
   created() {
+     this.token = this.$route.query.token
+    if (this.token) {
+      this.wxLogin()
+    }
+
     this.showInfo()
   },
 
   methods: {
     showInfo() {
-      debugger
+      //debugger
       var jsonStr = cookie.get("guli_ucenter");
       // alert(jsonStr)！!
       if (jsonStr) {
         this.loginInfo = JSON.parse(jsonStr)
         
       }
+    },
+     wxLogin() {
+     
+      //把token值放到cookie里面
+      cookie.set('guli_token',this.token,{domain: 'localhost'})
+      cookie.set('guli_ucenter','',{domain: 'localhost'})
+      //调用接口，根据token值获取用户信息
+      loginApi.getLoginInfo()
+        .then(response => {
+           this.loginInfo = response.data.data.userInfo
+           cookie.set('guli_ucenter',this.loginInfo,{domain: 'localhost'})
+        })
+     
     },
 
     logout() {
